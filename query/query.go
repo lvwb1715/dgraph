@@ -35,6 +35,7 @@ import (
 	"github.com/dgraph-io/dgraph/gql"
 	"github.com/dgraph-io/dgraph/protos/pb"
 	"github.com/dgraph-io/dgraph/task"
+	"github.com/dgraph-io/dgraph/schema"
 	"github.com/dgraph-io/dgraph/types"
 	"github.com/dgraph-io/dgraph/types/facets"
 	"github.com/dgraph-io/dgraph/worker"
@@ -2707,6 +2708,10 @@ func (req *QueryRequest) ProcessQuery(ctx context.Context) (err error) {
 		req.Subgraphs = append(req.Subgraphs, shortestSg...)
 	}
 
+	for _, sg := range req.Subgraphs {
+
+	}
+
 	req.Latency.Processing += time.Since(execStart)
 	return nil
 }
@@ -2761,4 +2766,17 @@ func StripBlankNode(mp map[string]uint64) map[string]uint64 {
 		}
 	}
 	return temp
+}
+
+func (sg *SubGraph) filterTypePredicates() {
+	if len(sg.Params.Type) == 0 {
+		return
+	}
+
+	typeDef, exists := schema.State().GetType(sg.Params.Type)
+	if !exists {
+		return
+	}
+
+	predsMap := make(map[string]pb.Posting_ValType)
 }
